@@ -26,7 +26,29 @@
 
     <!-- Formulário -->
     <section class="panel form-panel" aria-labelledby="titulo-dados">
-      <h2 id="titulo-dados">Informações pessoais</h2>
+      <div class="panel-title-row">
+        <h2 id="titulo-dados">Informações pessoais</h2>
+        <button type="button" id="btnResetForm" class="btn-link" title="Restaurar valores padrão">Limpar</button>
+      </div>
+
+      <!-- Banner exibido quando aberto via link travado do TI -->
+      <div id="lockedBanner" class="locked-banner" hidden>
+        <div>
+          <strong>Dados configurados pelo TI</strong>
+          <span>Confira a pré-visualização ao lado e clique em copiar.</span>
+        </div>
+        <button type="button" id="btnUnlock" class="btn-link">Editar</button>
+      </div>
+
+      <!-- 1. Preenchimento Mágico -->
+      <details class="tool-box" id="magicBox">
+        <summary>Preenchimento mágico (colar texto solto)</summary>
+        <div class="tool-body">
+          <label for="magicInput" class="sr-label">Cole uma assinatura antiga ou mensagem do RH/Teams</label>
+          <textarea id="magicInput" rows="3" placeholder="Ex: João Silva - Analista de TI - (62) 99999-8888 - joao@klios.com.br"></textarea>
+          <button type="button" id="btnMagicFill" class="btn btn-outline btn-sm">Preencher campos automaticamente</button>
+        </div>
+      </details>
 
       <form id="signatureForm" autocomplete="off" onsubmit="return false;">
         <div class="input-group">
@@ -53,21 +75,64 @@
 
         <p class="hint">Campos de contato deixados em branco não aparecem na imagem. O endereço do site é fixo.</p>
       </form>
+
+      <!-- 3. Diagnóstico / Score em tempo real -->
+      <div class="score-card" id="scoreCard" aria-live="polite">
+        <div class="score-head">
+          <span>Qualidade da assinatura</span>
+          <strong id="scoreValue">100%</strong>
+        </div>
+        <div class="score-bar"><span id="scoreFill" style="width: 100%;"></span></div>
+        <ul class="score-list" id="scoreList"></ul>
+      </div>
+
+      <!-- 6. Modo TI: Gerar convite pronto -->
+      <details class="tool-box" id="tiInviteBox">
+        <summary>Modo TI: gerar convite para colaborador</summary>
+        <div class="tool-body">
+          <p class="hint" style="margin-top: 0;">Gera um link com os dados preenchidos acima e uma mensagem pronta para enviar no WhatsApp ou Teams.</p>
+          <label class="check-inline">
+            <input type="checkbox" id="chkLockFields" checked>
+            <span>Travar edição para o colaborador</span>
+          </label>
+          <div class="ti-actions">
+            <button type="button" id="btnCopyInvite" class="btn btn-primary btn-sm">Copiar convite + link</button>
+            <button type="button" id="btnCopyLink" class="btn btn-outline btn-sm">Copiar só o link</button>
+          </div>
+        </div>
+      </details>
     </section>
 
     <!-- Pré-visualização -->
     <section class="panel preview-panel" aria-labelledby="titulo-preview">
-      <h2 id="titulo-preview" class="visually-hidden">Pré-visualização</h2>
+      <div class="preview-top">
+        <h2 id="titulo-preview">Pré-visualização</h2>
 
-      <div class="mockup-header">
-        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-        <span class="mockup-title">NOVA MENSAGEM</span>
+        <!-- 2. Simulador Multi-Tela -->
+        <div class="sim-tabs" role="tablist" aria-label="Modo de visualização">
+          <button type="button" class="sim-tab active" data-mode="desktop" role="tab" aria-selected="true">PC</button>
+          <button type="button" class="sim-tab" data-mode="mobile" role="tab" aria-selected="false">Celular</button>
+          <button type="button" class="sim-tab" data-mode="dark" role="tab" aria-selected="false">Modo Escuro</button>
+          <button type="button" class="sim-tab" data-mode="blocked" role="tab" aria-selected="false">Img Bloqueada</button>
+        </div>
       </div>
 
-      <div class="mockup-body">
-        <p>Olá,<br>Segue abaixo a assinatura configurada.</p>
-        <div class="canvas-wrap" id="canvasWrap">
-          <canvas id="signatureCanvas" width="400" height="200" role="img" aria-label="Pré-visualização da assinatura"></canvas>
+      <div class="mockup-shell" id="mockupShell" data-mode="desktop">
+        <div class="mockup-header">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="mockup-title" id="mockupTitle">NOVA MENSAGEM — OUTLOOK / WEBMAIL</span>
+        </div>
+
+        <div class="mockup-body">
+          <p>Olá,<br>Segue abaixo a assinatura configurada.</p>
+          <div class="canvas-wrap" id="canvasWrap">
+            <canvas id="signatureCanvas" width="400" height="200" role="img" aria-label="Pré-visualização da assinatura"></canvas>
+            <div class="blocked-placeholder" id="blockedPlaceholder" hidden>
+              <span class="blocked-icon">&#128247;</span>
+              <strong>Imagens bloqueadas por segurança</strong>
+              <span>Clique com o botão direito para baixar imagens (assinatura-klios.png &middot; 400&times;200)</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -79,7 +144,7 @@
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
       <p class="hint">
-        No Outlook Classic: <strong>Arquivo → Opções → E-mail → Assinaturas → Novo</strong>, clique na caixa da
+        No Outlook Classic: <strong>Arquivo &rarr; Opções &rarr; E-mail &rarr; Assinaturas &rarr; Novo</strong>, clique na caixa da
         assinatura e cole com <strong>Ctrl + V</strong>. Se a cópia não funcionar no seu navegador,
         use <strong>Baixar PNG</strong> e insira a imagem pelo botão de imagem do editor.
       </p>

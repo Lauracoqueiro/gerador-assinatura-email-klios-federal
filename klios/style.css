@@ -389,3 +389,330 @@ kbd {
     width: 100%;
   }
 }
+
+/* ==========================================================================
+   NOVAS FUNCIONALIDADES (Preenchimento Mágico, Score, Simulador, Modo TI)
+   ========================================================================== */
+
+.panel-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 15px;
+  padding-bottom: 6px;
+}
+
+.panel-title-row h2 {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.btn-link {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+
+.btn-link:hover,
+.btn-link:focus-visible {
+  color: var(--gold);
+  outline: none;
+}
+
+/* Banner de dados travados pelo TI */
+.locked-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  border-radius: 6px;
+  background: rgba(242, 150, 36, 0.1);
+  border: 1px solid rgba(242, 150, 36, 0.4);
+  font-size: 12px;
+}
+
+.locked-banner[hidden] {
+  display: none;
+}
+
+.locked-banner strong {
+  display: block;
+  color: var(--gold);
+}
+
+.locked-banner span {
+  color: var(--muted);
+}
+
+input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Caixas expansíveis (Preenchimento Mágico & Modo TI) */
+.tool-box {
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+}
+
+.tool-box[hidden] {
+  display: none;
+}
+
+.tool-box summary {
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--gold);
+  user-select: none;
+}
+
+.tool-body {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sr-label {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.tool-box textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 68px;
+  padding: 8px 10px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12.5px;
+  outline: none;
+}
+
+.tool-box textarea:focus {
+  border-color: var(--gold);
+}
+
+.btn-sm {
+  padding: 8px 12px;
+  font-size: 13px;
+  min-width: 0;
+}
+
+.check-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.ti-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Diagnóstico / Score */
+.score-card {
+  margin: 16px 0;
+  padding: 12px 14px;
+  border-radius: 6px;
+  background: var(--field);
+  border: 1px solid var(--border);
+}
+
+.score-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.score-head strong {
+  color: var(--ok);
+  font-size: 13px;
+}
+
+.score-head strong.warn {
+  color: var(--gold);
+}
+
+.score-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.score-bar span {
+  display: block;
+  height: 100%;
+  background: var(--ok);
+  transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.score-bar span.warn {
+  background: var(--gold);
+}
+
+.score-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 11.5px;
+}
+
+.score-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+}
+
+.score-list li.ok {
+  color: #cbd5e1;
+}
+
+.score-list li.warn {
+  color: var(--gold);
+}
+
+/* Simulador Multi-Tela */
+.preview-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+}
+
+.preview-top h2 {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.sim-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--field);
+  padding: 4px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.sim-tab {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.sim-tab.active {
+  background: var(--gold);
+  color: #0f1115;
+}
+
+.mockup-shell {
+  margin: 0 auto 20px;
+  transition: max-width 0.25s ease;
+}
+
+.mockup-shell .mockup-body {
+  margin-bottom: 0;
+}
+
+/* Modo Celular */
+.mockup-shell[data-mode="mobile"] {
+  max-width: 340px;
+  border: 3px solid #2a2e39;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.mockup-shell[data-mode="mobile"] .mockup-body {
+  padding: 14px;
+}
+
+/* Modo Escuro (Outlook / Gmail Dark Mode) */
+.mockup-shell[data-mode="dark"] .mockup-header {
+  background: #23262f;
+}
+
+.mockup-shell[data-mode="dark"] .mockup-title {
+  color: #a0a4b8;
+}
+
+.mockup-shell[data-mode="dark"] .mockup-body {
+  background: #14161b;
+  color: #e4e4e7;
+}
+
+/* Modo Imagem Bloqueada */
+.blocked-placeholder {
+  width: 400px;
+  max-width: 100%;
+  min-height: 200px;
+  padding: 20px;
+  border: 2px dashed #94a3b8;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #475569;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  line-height: 1.4;
+}
+
+.blocked-placeholder[hidden] {
+  display: none;
+}
+
+.blocked-icon {
+  font-size: 24px;
+}
+
+.blocked-placeholder strong {
+  font-size: 13px;
+  color: #1e293b;
+}
+
+.blocked-placeholder span:last-child {
+  font-size: 11px;
+}

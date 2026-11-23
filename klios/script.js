@@ -10,9 +10,10 @@
 
   const STORAGE_KEY = "klios_sig_state";
   const STORAGE_KEY_POS = "klios_sig_debug_pos";
+  const CORPORATE_DOMAIN = "@klios.com.br";
 
-  // Modo ajuste: abra a página com ?debug=1
-  const DEBUG = new URLSearchParams(window.location.search).get("debug") === "1";
+  const PARAMS = new URLSearchParams(window.location.search);
+  const DEBUG = PARAMS.get("debug") === "1";
 
   const ORANGE = "#F29624";
   const SITE_TEXT = "www.klios.com.br";
@@ -22,9 +23,6 @@
   //   font     -> fonte e cor informadas no script original
   //   maxWidth -> largura disponível; se o texto não couber, a fonte diminui
   //               automaticamente até minSize
-  // Referências medidas: barra do cargo x 195-383 / y 50-65; ícone do telefone
-  // y 87-108; ícone do e-mail y 116-137; ícones terminam em x 225; ícone do
-  // site x 205-238. Ajuste fino: abra a página com ?debug=1.
   const CONFIG = {
     name:  { x: 195, y: 39,  font: "bold 22px Arial, sans-serif", color: ORANGE,    maxWidth: 198, minSize: 11 },
     role:  { x: 200, y: 62,  font: "bold 13px Arial, sans-serif", color: "#FFFFFF", maxWidth: 178, minSize: 9 },
@@ -33,7 +31,13 @@
     site:  { x: 243, y: 157, font: "bold 12px Arial, sans-serif", color: ORANGE,    maxWidth: 150, minSize: 9 },
   };
 
-  // Textos usados quando o campo obrigatório fica vazio
+  // Valores padrão (usados também no botão Limpar)
+  const INITIAL_VALUES = {
+    name: "Laura Coqueiro de Oliveira",
+    role: "Suporte de TI",
+    phone: "(62) 3414-1176",
+    email: "laura.oliveira@klios.com.br",
+  };
   const DEFAULTS = { name: "Seu Nome Completo", role: "Seu Cargo" };
 
   // ==========================================================================
@@ -49,7 +53,28 @@
     inputEmail: document.getElementById("inputEmail"),
     btnCopy: document.getElementById("btnCopy"),
     btnDownload: document.getElementById("btnDownload"),
+    btnResetForm: document.getElementById("btnResetForm"),
     toast: document.getElementById("toast"),
+    // preenchimento mágico
+    magicBox: document.getElementById("magicBox"),
+    magicInput: document.getElementById("magicInput"),
+    btnMagicFill: document.getElementById("btnMagicFill"),
+    // score
+    scoreValue: document.getElementById("scoreValue"),
+    scoreFill: document.getElementById("scoreFill"),
+    scoreList: document.getElementById("scoreList"),
+    // modo TI / travamento
+    lockedBanner: document.getElementById("lockedBanner"),
+    btnUnlock: document.getElementById("btnUnlock"),
+    tiInviteBox: document.getElementById("tiInviteBox"),
+    chkLockFields: document.getElementById("chkLockFields"),
+    btnCopyInvite: document.getElementById("btnCopyInvite"),
+    btnCopyLink: document.getElementById("btnCopyLink"),
+    // simulador multi-tela
+    mockupShell: document.getElementById("mockupShell"),
+    mockupTitle: document.getElementById("mockupTitle"),
+    blockedPlaceholder: document.getElementById("blockedPlaceholder"),
+    simTabs: document.querySelectorAll(".sim-tab"),
     // modo ajuste
     debugPanel: document.getElementById("debugPanel"),
     debugField: document.getElementById("debugField"),
@@ -64,6 +89,7 @@
   const ctx = dom.canvas.getContext("2d");
   const templateImg = new Image();
   let templateReady = false;
+  let lastFittedSizes = { name: 22, role: 13 };
 
   const state = { name: "", role: "", phone: "", email: "" };
 
@@ -92,8 +118,82 @@
     toastTimer = setTimeout(() => dom.toast.classList.remove("show"), 5000);
   }
 
+  async function copyPlainText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    if (!ok) throw new Error("copy failed");
+  }
+
   // ==========================================================================
-  // DESENHO DA ASSINATURA
+  // 1. PREENCHIMENTO MÁGICO ("Colar e Preencher")
+  // ==========================================================================
+
+  function parseMagicText(raw) {
+    if (!raw || !raw.trim()) return null;
+    let text = raw.replace(/\r\n/g, "\n");
+
+    // 1) E-mail
+    let email = "";
+    const emailMatch = text.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/);
+    if (emailMatch) {
+      email = emailMatch[0];
+      text = text.replace(email, "\n");
+    }
+
+    // 2) Telefone brasileiro (com ou sem +55, DDD e hífen/espaço)
+    let phone = "";
+    const phoneMatch = text.match(/(?:\+?55\s*)?(?:\(?\d{2}\)?\s*)?(?:9?\d{4})[-.\s]?\d{4}\b/);
+    if (phoneMatch) {
+      const digits = phoneMatch[0].replace(/\D/g, "").replace(/^55(?=\d{10,11}$)/, "");
+      if (digits.length >= 8) {
+        phone = maskPhone(digits);
+        text = text.replace(phoneMatch[0], "\n");
+      }
+    }
+
+    // 3) Remove URLs e rótulos comuns antes de separar Nome e Cargo
+    text = text.replace(/https?:\/\/\S+|www\.\S+/gi, "\n");
+    const chunks = text
+      .split(/[\n|•/]+|\s+[-–—]\s+/)
+      .map((s) => s.replace(/^(?:nome|colaborador|cargo|fun[çc][ãa]o|tel(?:efone)?|whatsapp|cel(?:ular)?|e-?mail|contato)\s*[:\-]\s*/i, "").trim())
+      .filter((s) => s.length >= 2 && !/^(?:ol[áa]|att|atenciosamente|klios(?:\s+tecnologia)?|[àa]\s+disposi[çc][ãa]o)[,!.\s]*$/i.test(s));
+
+    return {
+      name: chunks[0] || "",
+      role: chunks[1] || "",
+      phone,
+      email,
+    };
+  }
+
+  function applyMagicFill() {
+    const parsed = parseMagicText(dom.magicInput.value);
+    if (!parsed || (!parsed.name && !parsed.role && !parsed.phone && !parsed.email)) {
+      showToast("Não encontrei dados reconhecíveis no texto colado.", "info");
+      return;
+    }
+    if (parsed.name) dom.inputName.value = parsed.name.slice(0, 60);
+    if (parsed.role) dom.inputRole.value = parsed.role.slice(0, 40);
+    if (parsed.phone) dom.inputPhone.value = parsed.phone;
+    if (parsed.email) dom.inputEmail.value = parsed.email.slice(0, 50);
+
+    onInput();
+    dom.magicBox.open = false;
+    showToast("Campos preenchidos automaticamente! Confira a prévia.", "success");
+  }
+
+  // ==========================================================================
+  // 2. DESENHO DA ASSINATURA
   // ==========================================================================
 
   // Reduz o tamanho da fonte até o texto caber na largura disponível
@@ -101,7 +201,7 @@
     const match = conf.font.match(/(\d+(?:\.\d+)?)px/);
     if (!match) {
       ctx.font = conf.font;
-      return;
+      return 0;
     }
     let size = parseFloat(match[1]);
     const build = (s) => conf.font.replace(/(\d+(?:\.\d+)?)px/, `${s}px`);
@@ -110,17 +210,18 @@
       size -= 0.5;
       ctx.font = build(size);
     }
+    return size;
   }
 
   function drawField(key, text) {
-    if (!text) return;
+    if (!text) return null;
     const conf = CONFIG[key];
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = conf.color;
-    applyFittedFont(text, conf);
-    // o 4º parâmetro comprime o texto se ainda não couber no tamanho mínimo
+    const usedSize = applyFittedFont(text, conf);
     ctx.fillText(text, conf.x, conf.y, conf.maxWidth);
+    return usedSize;
   }
 
   function render() {
@@ -128,17 +229,99 @@
     ctx.clearRect(0, 0, dom.canvas.width, dom.canvas.height);
     ctx.drawImage(templateImg, 0, 0, dom.canvas.width, dom.canvas.height);
 
-    drawField("name", state.name || DEFAULTS.name);
-    drawField("role", state.role || DEFAULTS.role);
+    lastFittedSizes.name = drawField("name", state.name || DEFAULTS.name) || 22;
+    lastFittedSizes.role = drawField("role", state.role || DEFAULTS.role) || 13;
     drawField("phone", state.phone);
     drawField("email", state.email);
     drawField("site", SITE_TEXT);
 
+    updateScore();
     if (DEBUG) drawOverlay(null);
   }
 
   // ==========================================================================
-  // FORMULÁRIO
+  // 3. DIAGNÓSTICO / SCORE EM TEMPO REAL
+  // ==========================================================================
+
+  function updateScore() {
+    const phoneDigits = state.phone.replace(/\D/g, "");
+    const checks = [
+      {
+        ok: state.name.length >= 3 && lastFittedSizes.name >= 14,
+        label: !state.name
+          ? "Informe o nome completo"
+          : lastFittedSizes.name < 14
+            ? "Nome muito longo (fonte reduzida para caber)"
+            : "Nome com tamanho ideal",
+      },
+      {
+        ok: state.role.length >= 2 && lastFittedSizes.role >= 10,
+        label: !state.role
+          ? "Informe o cargo"
+          : lastFittedSizes.role < 10
+            ? "Cargo muito longo para a barra azul"
+            : "Cargo alinhado na barra",
+      },
+      {
+        ok: phoneDigits.length === 10 || phoneDigits.length === 11,
+        label: !state.phone
+          ? "Telefone em branco (opcional)"
+          : phoneDigits.length < 10
+            ? "Telefone sem DDD completo"
+            : "Telefone com DDD válido",
+      },
+      {
+        ok: isValidEmail(state.email) && state.email.toLowerCase().endsWith(CORPORATE_DOMAIN),
+        label: !state.email
+          ? "E-mail em branco (opcional)"
+          : !isValidEmail(state.email)
+            ? "Formato de e-mail inválido"
+            : !state.email.toLowerCase().endsWith(CORPORATE_DOMAIN)
+              ? `E-mail fora do domínio ${CORPORATE_DOMAIN}`
+              : `E-mail corporativo ${CORPORATE_DOMAIN}`,
+      },
+    ];
+
+    const passed = checks.filter((c) => c.ok).length;
+    const pct = Math.round((passed / checks.length) * 100);
+    const isWarn = pct < 100;
+
+    dom.scoreValue.textContent = `${pct}%`;
+    dom.scoreValue.classList.toggle("warn", isWarn);
+    dom.scoreFill.style.width = `${pct}%`;
+    dom.scoreFill.classList.toggle("warn", isWarn);
+
+    dom.scoreList.innerHTML = checks
+      .map((c) => `<li class="${c.ok ? "ok" : "warn"}">${c.ok ? "&#10003;" : "&#9888;"} ${c.label}</li>`)
+      .join("");
+  }
+
+  // ==========================================================================
+  // 4. SIMULADOR MULTI-TELA
+  // ==========================================================================
+
+  const SIM_TITLES = {
+    desktop: "NOVA MENSAGEM — OUTLOOK / WEBMAIL",
+    mobile: "CELULAR (340PX) — VISUALIZAÇÃO",
+    dark: "MODO ESCURO — OUTLOOK / GMAIL",
+    blocked: "IMAGENS BLOQUEADAS PELO DESTINATÁRIO",
+  };
+
+  function setSimMode(mode) {
+    dom.mockupShell.dataset.mode = mode;
+    dom.mockupTitle.textContent = SIM_TITLES[mode] || SIM_TITLES.desktop;
+    dom.simTabs.forEach((btn) => {
+      const active = btn.dataset.mode === mode;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-selected", String(active));
+    });
+    const isBlocked = mode === "blocked";
+    dom.canvas.hidden = isBlocked;
+    dom.blockedPlaceholder.hidden = !isBlocked;
+  }
+
+  // ==========================================================================
+  // 5. FORMULÁRIO, URL E MODO TI (Convite Pronto)
   // ==========================================================================
 
   function readForm() {
@@ -147,6 +330,13 @@
     state.phone = dom.inputPhone.value.trim();
     state.email = dom.inputEmail.value.trim();
     dom.inputEmail.classList.toggle("input-invalid", !!state.email && !isValidEmail(state.email));
+  }
+
+  function applyValuesToInputs(vals) {
+    if (typeof vals.name === "string") dom.inputName.value = vals.name;
+    if (typeof vals.role === "string") dom.inputRole.value = vals.role;
+    if (typeof vals.phone === "string") dom.inputPhone.value = maskPhone(vals.phone);
+    if (typeof vals.email === "string") dom.inputEmail.value = vals.email;
   }
 
   let saveTimer = null;
@@ -161,20 +351,72 @@
     }, 400);
   }
 
-  function loadSaved() {
+  function setLockedMode(locked) {
+    [dom.inputName, dom.inputRole, dom.inputPhone, dom.inputEmail].forEach((el) => {
+      el.disabled = locked;
+    });
+    dom.lockedBanner.hidden = !locked;
+    dom.magicBox.hidden = locked;
+    dom.tiInviteBox.hidden = locked;
+    dom.btnResetForm.hidden = locked;
+  }
+
+  function loadInitialState() {
+    const hasQuery = ["nome", "cargo", "tel", "email"].some((k) => PARAMS.has(k));
+    if (hasQuery) {
+      applyValuesToInputs({
+        name: PARAMS.get("nome") ?? "",
+        role: PARAMS.get("cargo") ?? "",
+        phone: PARAMS.get("tel") ?? "",
+        email: PARAMS.get("email") ?? "",
+      });
+      if (PARAMS.get("travado") === "1" || PARAMS.get("locked") === "1") {
+        setLockedMode(true);
+      }
+      return;
+    }
+
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-      if (!saved) return;
-      ["name", "role", "phone", "email"].forEach((k) => {
-        if (typeof saved[k] === "string") state[k] = saved[k];
-      });
-      dom.inputName.value = state.name;
-      dom.inputRole.value = state.role;
-      dom.inputPhone.value = state.phone;
-      dom.inputEmail.value = state.email;
+      if (saved) applyValuesToInputs(saved);
     } catch (e) {
       console.warn("Não foi possível carregar dados salvos:", e);
     }
+  }
+
+  function buildInviteUrl() {
+    const url = new URL(window.location.href);
+    url.search = "";
+    if (state.name) url.searchParams.set("nome", state.name);
+    if (state.role) url.searchParams.set("cargo", state.role);
+    if (state.phone) url.searchParams.set("tel", state.phone);
+    if (state.email) url.searchParams.set("email", state.email);
+    if (dom.chkLockFields.checked) url.searchParams.set("travado", "1");
+    return url.toString();
+  }
+
+  async function copyInvite(withMessage) {
+    readForm();
+    const link = buildInviteUrl();
+    const firstName = (state.name || "colega").split(/\s+/)[0];
+    const payload = withMessage
+      ? `Olá, ${firstName}! Sua assinatura corporativa da KLIOS já está pronta:\n\n1. Abra o link: ${link}\n2. Clique em "Copiar assinatura (imagem)"\n3. Cole com Ctrl + V nas configurações de assinatura do Outlook.`
+      : link;
+    try {
+      await copyPlainText(payload);
+      showToast(withMessage ? "Convite + link copiados para enviar no WhatsApp/Teams!" : "Link preenchido copiado!", "success");
+    } catch (e) {
+      showToast("Não foi possível copiar o link automaticamente.", "error");
+    }
+  }
+
+  function resetForm() {
+    applyValuesToInputs(INITIAL_VALUES);
+    dom.magicInput.value = "";
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignora */ }
+    readForm();
+    render();
+    showToast("Campos restaurados para o padrão.", "info");
   }
 
   function onInput() {
@@ -184,7 +426,7 @@
   }
 
   // ==========================================================================
-  // COPIAR E BAIXAR
+  // 6. COPIAR E BAIXAR PNG
   // ==========================================================================
 
   function canvasToBlob() {
@@ -199,7 +441,6 @@
       return;
     }
     try {
-      // A imagem é passada como promessa: assim funciona também no Safari
       await navigator.clipboard.write([new ClipboardItem({ "image/png": canvasToBlob() })]);
       showToast("Assinatura copiada! Cole (Ctrl + V) na assinatura do Outlook.", "success");
     } catch (err) {
@@ -230,7 +471,7 @@
   }
 
   // ==========================================================================
-  // MODO AJUSTE (somente com ?debug=1)
+  // 7. MODO AJUSTE (somente com ?debug=1)
   // ==========================================================================
 
   let overlay = null;
@@ -307,7 +548,6 @@
       }
     }
 
-    // marcas de cada campo (selecionado em azul-claro, demais em vermelho)
     Object.keys(CONFIG).forEach((k) => {
       const c = CONFIG[k];
       const selected = k === selectedKey();
@@ -412,9 +652,8 @@
     });
 
     dom.btnCopyConfig.addEventListener("click", async () => {
-      const text = JSON.stringify(positionsObject(), null, 2);
       try {
-        await navigator.clipboard.writeText(text);
+        await copyPlainText(JSON.stringify(positionsObject(), null, 2));
         showToast("Posições copiadas!", "success");
       } catch (e) {
         showToast("Não foi possível copiar. Selecione o texto da caixa e use Ctrl + C.", "info");
@@ -429,8 +668,9 @@
   // ==========================================================================
 
   function init() {
-    loadSaved();
+    loadInitialState();
     readForm();
+    updateScore();
 
     ["inputName", "inputRole", "inputEmail"].forEach((id) => dom[id].addEventListener("input", onInput));
     dom.inputPhone.addEventListener("input", () => {
@@ -441,6 +681,12 @@
 
     dom.btnCopy.addEventListener("click", copyImage);
     dom.btnDownload.addEventListener("click", downloadImage);
+    dom.btnResetForm.addEventListener("click", resetForm);
+    dom.btnMagicFill.addEventListener("click", applyMagicFill);
+    dom.btnUnlock.addEventListener("click", () => setLockedMode(false));
+    dom.btnCopyInvite.addEventListener("click", () => copyInvite(true));
+    dom.btnCopyLink.addEventListener("click", () => copyInvite(false));
+    dom.simTabs.forEach((btn) => btn.addEventListener("click", () => setSimMode(btn.dataset.mode)));
 
     if (DEBUG) initDebug();
 
