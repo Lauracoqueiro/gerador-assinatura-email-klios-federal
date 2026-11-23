@@ -52,9 +52,8 @@ body {
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 16px 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  position: relative;
+  z-index: 10;
 }
 
 .header-container {
@@ -910,4 +909,306 @@ span.client-btn {
 .modal-close:focus-visible {
   outline: 3px solid rgba(0, 0, 204, 0.4);
   outline-offset: 2px;
+}
+
+/* ==========================================================================
+   MELHORIAS FEDERAL (Menu, Preenchimento Mágico, Score, Simulador, Modo TI)
+   ========================================================================== */
+
+.editor-panel .panel-header.flex-header {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.back-link {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.back-link:hover,
+.back-link:focus-visible {
+  color: #ffffff;
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
+}
+
+.btn-link {
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.btn-link:hover {
+  color: var(--blue-primary);
+  background: #f1f5f9;
+}
+
+.locked-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: var(--radius-sm);
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  font-size: 12.5px;
+}
+
+.locked-banner[hidden] {
+  display: none;
+}
+
+.locked-banner strong {
+  display: block;
+  color: var(--blue-primary);
+}
+
+.locked-banner span {
+  color: var(--text-muted);
+}
+
+input:disabled,
+select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.tool-box {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+.tool-box[hidden] {
+  display: none;
+}
+
+.tool-box summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.tool-body {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tool-box textarea {
+  width: 100%;
+  min-height: 68px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--text-main);
+  background: #ffffff;
+  resize: vertical;
+}
+
+.tool-box textarea:focus {
+  outline: none;
+  border-color: var(--blue-primary);
+}
+
+.btn-sm {
+  padding: 8px 14px;
+  font-size: 12.5px;
+}
+
+.check-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-main);
+  text-transform: none;
+  letter-spacing: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.ti-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Score */
+.score-card {
+  margin-top: 18px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+}
+
+.score-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.score-head strong {
+  color: var(--ok-green);
+  font-size: 13px;
+}
+
+.score-head strong.warn {
+  color: #d97706;
+}
+
+.score-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.score-bar span {
+  display: block;
+  height: 100%;
+  background: var(--ok-green);
+  transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.score-bar span.warn {
+  background: #f59e0b;
+}
+
+.score-list {
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.score-list li.ok {
+  color: #334155;
+}
+
+.score-list li.warn {
+  color: #b45309;
+}
+
+/* Simulador Multi-Tela */
+.sim-tabs {
+  display: flex;
+  gap: 4px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 10px;
+  flex-wrap: wrap;
+}
+
+.sim-tab {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sim-tab.active {
+  background: var(--navy-dark);
+  color: #ffffff;
+}
+
+.mockup-card {
+  margin-left: auto;
+  margin-right: auto;
+  transition: max-width 0.25s ease, background 0.25s ease;
+}
+
+.mockup-card[data-mode="mobile"] {
+  max-width: 360px;
+  border: 3px solid #cbd5e1;
+  border-radius: 18px;
+}
+
+.mockup-card[data-mode="mobile"] .mockup-body {
+  padding: 16px;
+}
+
+.mockup-card[data-mode="mobile"] .signature-render-area {
+  overflow-x: auto;
+}
+
+.mockup-card[data-mode="dark"] {
+  background: #14161b;
+  border-color: #2a2e39;
+}
+
+.mockup-card[data-mode="dark"] .mockup-header {
+  background: #1f222b;
+}
+
+.mockup-card[data-mode="dark"] .mockup-title,
+.mockup-card[data-mode="dark"] .email-meta {
+  color: #94a3b8;
+  border-bottom-color: #2a2e39;
+}
+
+.mockup-card[data-mode="dark"] .email-content {
+  color: #e4e4e7;
+}
+
+.signature-render-area img {
+  max-width: 100%;
+  height: auto;
+}
+
+.fed-blocked-box {
+  width: 450px;
+  max-width: 100%;
+  min-height: 108px;
+  padding: 14px;
+  border: 2px dashed #94a3b8;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #475569;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  gap: 4px;
 }

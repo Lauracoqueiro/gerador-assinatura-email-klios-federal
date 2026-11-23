@@ -15,8 +15,8 @@
   // no lugar do base64 e dos arquivos locais. É a opção mais confiável:
   // Gmail e Outlook (destinatários) bloqueiam imagens base64.
   // Ex.: "https://www.federalst.com.br/assinatura/logo-azul.jpg"
-  const LOGO_URL_RED = "";
-  const LOGO_URL_BLUE = "";
+  const LOGO_URL_RED = "https://gerador-de-assinaturas-klios-federa.vercel.app/federal/logo-vermelha.png";
+  const LOGO_URL_BLUE = "https://gerador-de-assinaturas-klios-federa.vercel.app/federal/logo-azul.jpg";
 
   // Arquivos de logo que ficam na MESMA PASTA do index.html.
   // O Outlook Classic (motor do Word) carrega imagens por caminho de arquivo
@@ -76,6 +76,23 @@
     btnCopyLogo: document.getElementById("btnCopyLogo"),
     btnViewCode: document.getElementById("btnViewCode"),
     btnDownloadHtml: document.getElementById("btnDownloadHtml"),
+    // Novas funções (Menu, Mágico, Score, Simulador, Modo TI)
+    btnResetForm: document.getElementById("btnResetForm"),
+    lockedBanner: document.getElementById("lockedBanner"),
+    btnUnlock: document.getElementById("btnUnlock"),
+    magicBox: document.getElementById("magicBox"),
+    magicInput: document.getElementById("magicInput"),
+    btnMagicFill: document.getElementById("btnMagicFill"),
+    scoreValue: document.getElementById("scoreValue"),
+    scoreFill: document.getElementById("scoreFill"),
+    scoreList: document.getElementById("scoreList"),
+    tiInviteBox: document.getElementById("tiInviteBox"),
+    chkLockFields: document.getElementById("chkLockFields"),
+    btnCopyInvite: document.getElementById("btnCopyInvite"),
+    btnCopyLink: document.getElementById("btnCopyLink"),
+    mockupContainer: document.getElementById("mockupContainer"),
+    mockupTitleText: document.getElementById("mockupTitleText"),
+    simTabs: document.querySelectorAll(".sim-tab"),
   };
 
   // Estado da Aplicação
@@ -175,6 +192,9 @@
 
     const isRed = state.logoColor === "red";
     const dims = { naturalW: OFFICIAL_LOGO_W, naturalH: OFFICIAL_LOGO_H };
+    if (target === "preview") {
+      return { src: isRed ? LOGO_RED : LOGO_BLUE, ...dims };
+    }
     const publicUrl = getPublicLogoUrl();
     if (publicUrl) return { src: publicUrl, ...dims };
 
@@ -330,6 +350,32 @@
   // ==========================================================================
 
   function loadSavedState() {
+    const params = new URLSearchParams(window.location.search);
+    const hasQuery = ["nome", "cargo", "tel", "email", "logo", "modelo"].some((k) => params.has(k));
+    if (hasQuery) {
+      if (params.has("nome")) state.nome = params.get("nome") || "";
+      if (params.has("cargo")) state.cargo = params.get("cargo") || "";
+      if (params.has("tel")) {
+        state.telefone = maskPhone(params.get("tel") || "");
+        state.showTelefone = !!state.telefone;
+      }
+      if (params.has("email")) {
+        state.email = params.get("email") || "";
+        state.showEmail = !!state.email;
+      }
+      if (params.get("logo") === "red" || params.get("logo") === "blue") {
+        state.logoColor = params.get("logo");
+      }
+      if (["classic", "executive", "compact", "card"].includes(params.get("modelo"))) {
+        state.template = params.get("modelo");
+      }
+      syncFormFromState();
+      if (params.get("travado") === "1" || params.get("locked") === "1") {
+        setLockedMode(true);
+      }
+      return;
+    }
+
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -461,8 +507,17 @@
     readFormIntoState();
 
     if (dom.signatureContainer) {
-      dom.signatureContainer.innerHTML = getGeneratedHTML("web");
+      let previewHtml = getGeneratedHTML("preview");
+      if (simMode === "blocked") {
+        previewHtml = previewHtml.replace(
+          /<img[^>]*>/gi,
+          '<div class="fed-blocked-box"><span>&#128247; Imagens bloqueadas por segurança</span><span>Clique para baixar imagens (logo Federal Safety)</span></div>'
+        );
+      }
+      dom.signatureContainer.innerHTML = previewHtml;
     }
+
+    updateScore();
 
     // Aviso visual de e-mail inválido
     if (dom.inputEmail) {
@@ -861,9 +916,192 @@
     }
   }
 
+  // ==========================================================================
+  // 10. NOVAS FUNÇÕES (Preenchimento Mágico, Score, Simulador, Modo TI)
+  // ==========================================================================
+
+  let simMode = "desktop";
+  const SIM_TITLES = {
+    desktop: "Locaweb Webmail — Nova Mensagem",
+    mobile: "Celular (360px) — Visualização",
+    dark: "Modo Escuro — Outlook / Gmail",
+    blocked: "Imagens bloqueadas pelo destinatário",
+  };
+
+  function setSimMode(mode) {
+    simMode = mode;
+    if (dom.mockupContainer) dom.mockupContainer.dataset.mode = mode;
+    if (dom.mockupTitleText) dom.mockupTitleText.textContent = SIM_TITLES[mode] || SIM_TITLES.desktop;
+    dom.simTabs.forEach((btn) => {
+      const active = btn.dataset.mode === mode;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-selected", String(active));
+    });
+    updateRender();
+  }
+
+  function updateScore() {
+    if (!dom.scoreValue || !dom.scoreFill || !dom.scoreList) return;
+    const phoneDigits = state.telefone.replace(/\D/g, "");
+    const checks = [
+      {
+        ok: state.nome.length >= 3,
+        label: state.nome.length >= 3 ? "Nome completo preenchido" : "Informe o nome completo",
+      },
+      {
+        ok: state.cargo.length >= 2,
+        label: state.cargo.length >= 2 ? "Cargo preenchido" : "Informe o cargo",
+      },
+      {
+        ok: !state.showTelefone || phoneDigits.length === 10 || phoneDigits.length === 11,
+        label: !state.showTelefone
+          ? "Telefone oculto (opcional)"
+          : phoneDigits.length < 10
+            ? "Telefone exibido sem DDD completo"
+            : "Telefone com DDD válido",
+      },
+      {
+        ok: !state.showEmail || (isValidEmail(state.email) && state.email.toLowerCase().endsWith("@federalst.com.br")),
+        label: !state.showEmail
+          ? "E-mail oculto (opcional)"
+          : !isValidEmail(state.email)
+            ? "Formato de e-mail inválido"
+            : !state.email.toLowerCase().endsWith("@federalst.com.br")
+              ? "E-mail fora do domínio @federalst.com.br"
+              : "E-mail corporativo @federalst.com.br",
+      },
+    ];
+
+    const passed = checks.filter((c) => c.ok).length;
+    const pct = Math.round((passed / checks.length) * 100);
+    const isWarn = pct < 100;
+    dom.scoreValue.textContent = `${pct}%`;
+    dom.scoreValue.classList.toggle("warn", isWarn);
+    dom.scoreFill.style.width = `${pct}%`;
+    dom.scoreFill.classList.toggle("warn", isWarn);
+    dom.scoreList.innerHTML = checks
+      .map((c) => `<li class="${c.ok ? "ok" : "warn"}">${c.ok ? "&#10003;" : "&#9888;"} ${c.label}</li>`)
+      .join("");
+  }
+
+  function parseMagicText(raw) {
+    if (!raw || !raw.trim()) return null;
+    let text = raw.replace(/\r\n/g, "\n");
+
+    let email = "";
+    const emailMatch = text.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/);
+    if (emailMatch) {
+      email = emailMatch[0];
+      text = text.replace(email, "\n");
+    }
+
+    let phone = "";
+    const phoneMatch = text.match(/(?:\+?55\s*)?(?:\(?\d{2}\)?\s*)?(?:9?\d{4})[-.\s]?\d{4}\b/);
+    if (phoneMatch) {
+      const digits = phoneMatch[0].replace(/\D/g, "").replace(/^55(?=\d{10,11}$)/, "");
+      if (digits.length >= 8) {
+        phone = maskPhone(digits);
+        text = text.replace(phoneMatch[0], "\n");
+      }
+    }
+
+    text = text.replace(/https?:\/\/\S+|www\.\S+/gi, "\n");
+    const chunks = text
+      .split(/[\n|•/]+|\s+[-–—]\s+/)
+      .map((s) => s.replace(/^(?:nome|colaborador|cargo|fun[çc][ãa]o|tel(?:efone)?|whatsapp|cel(?:ular)?|e-?mail|contato)\s*[:\-]\s*/i, "").trim())
+      .filter((s) => s.length >= 2 && !/^(?:ol[áa]|att|atenciosamente|federal(?:\s+safety)?|[àa]\s+disposi[çc][ãa]o)[,!.\s]*$/i.test(s));
+
+    return { name: chunks[0] || "", role: chunks[1] || "", phone, email };
+  }
+
+  function applyMagicFill() {
+    const parsed = parseMagicText(dom.magicInput ? dom.magicInput.value : "");
+    if (!parsed || (!parsed.name && !parsed.role && !parsed.phone && !parsed.email)) {
+      showToast("Não encontrei dados reconhecíveis no texto colado.", "info");
+      return;
+    }
+    if (parsed.name && dom.inputNome) dom.inputNome.value = parsed.name;
+    if (parsed.role && dom.inputCargo) dom.inputCargo.value = parsed.role;
+    if (parsed.phone && dom.inputTelefone) {
+      dom.inputTelefone.value = parsed.phone;
+      if (dom.chkShowTelefone) dom.chkShowTelefone.checked = true;
+    }
+    if (parsed.email && dom.inputEmail) {
+      dom.inputEmail.value = parsed.email;
+      if (dom.chkShowEmail) dom.chkShowEmail.checked = true;
+    }
+    if (dom.magicBox) dom.magicBox.open = false;
+    updateRender();
+    showToast("Campos preenchidos automaticamente!", "success");
+  }
+
+  function setLockedMode(locked) {
+    [
+      dom.inputNome, dom.inputCargo, dom.inputLogoColor, dom.inputTelefone,
+      dom.inputEmail, dom.chkShowTelefone, dom.chkShowEmail, dom.inputEmpresa,
+      dom.inputSite, dom.inputSlogan,
+    ].forEach((el) => { if (el) el.disabled = locked; });
+    if (dom.lockedBanner) dom.lockedBanner.hidden = !locked;
+    if (dom.magicBox) dom.magicBox.hidden = locked;
+    if (dom.tiInviteBox) dom.tiInviteBox.hidden = locked;
+    if (dom.btnResetForm) dom.btnResetForm.hidden = locked;
+  }
+
+  function buildInviteUrl() {
+    const url = new URL(window.location.href);
+    url.search = "";
+    url.searchParams.set("nome", state.nome);
+    url.searchParams.set("cargo", state.cargo);
+    if (state.showTelefone && state.telefone) url.searchParams.set("tel", state.telefone);
+    if (state.showEmail && state.email) url.searchParams.set("email", state.email);
+    url.searchParams.set("logo", state.logoColor);
+    url.searchParams.set("modelo", state.template);
+    if (dom.chkLockFields && dom.chkLockFields.checked) url.searchParams.set("travado", "1");
+    return url.toString();
+  }
+
+  function copyInvite(withMessage) {
+    readFormIntoState();
+    const link = buildInviteUrl();
+    const firstName = (state.nome || "colega").split(/\s+/)[0];
+    const payload = withMessage
+      ? `Olá, ${firstName}! Sua assinatura corporativa da Federal Safety já está pronta:\n\n1. Abra o link: ${link}\n2. Clique em "Copiar Código HTML (Locaweb)" ou "1. Copiar Assinatura (Outlook)"\n3. Cole nas configurações do seu e-mail.`
+      : link;
+    copyTextToClipboard(payload, () => {
+      showToast(withMessage ? "Convite + link copiados para enviar no WhatsApp/Teams!" : "Link preenchido copiado!", "success");
+    });
+  }
+
+  function resetForm() {
+    state.nome = "Michel Berigo";
+    state.cargo = "Auxiliar de Monitoramento";
+    state.logoColor = "blue";
+    state.showTelefone = false;
+    state.showEmail = false;
+    state.telefone = "(11) 98765-4321";
+    state.email = "michel.berigo@federalst.com.br";
+    state.empresa = "FEDERAL SAFETY";
+    state.site = "www.federalst.com.br";
+    state.slogan = "Promova gentilezas. Retribua gentilezas.";
+    state.template = "classic";
+    state.colorPrimary = DEFAULT_PRIMARY;
+    state.colorSecondary = DEFAULT_SECONDARY;
+    if (dom.magicInput) dom.magicInput.value = "";
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignora */ }
+    syncFormFromState();
+    updateRender();
+    showToast("Campos restaurados para o padrão.", "info");
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     loadSavedState();
     initEvents();
+    if (dom.btnResetForm) dom.btnResetForm.addEventListener("click", resetForm);
+    if (dom.btnMagicFill) dom.btnMagicFill.addEventListener("click", applyMagicFill);
+    if (dom.btnUnlock) dom.btnUnlock.addEventListener("click", () => setLockedMode(false));
+    if (dom.btnCopyInvite) dom.btnCopyInvite.addEventListener("click", () => copyInvite(true));
+    if (dom.btnCopyLink) dom.btnCopyLink.addEventListener("click", () => copyInvite(false));
+    dom.simTabs.forEach((btn) => btn.addEventListener("click", () => setSimMode(btn.dataset.mode)));
     updateRender();
   });
 })();

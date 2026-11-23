@@ -22,6 +22,7 @@
   <header class="app-header">
     <div class="header-container">
       <div class="brand">
+        <a class="back-link" href="../index.html">&larr; Menu</a>
         <div class="brand-badge">FEDERAL SAFETY</div>
         <h1 class="brand-title"><i class="fa-solid fa-signature"></i> Gerador de Assinaturas</h1>
       </div>
@@ -38,10 +39,31 @@
         
         <!-- Left Panel: Form & Customization -->
         <section class="editor-panel">
-          <div class="panel-header">
-            <h2><i class="fa-solid fa-sliders"></i> Personalização</h2>
-            <p>Preencha os dados e escolha o modelo ideal para seu e-mail.</p>
+          <div class="panel-header flex-header">
+            <div>
+              <h2><i class="fa-solid fa-sliders"></i> Personalização</h2>
+              <p>Preencha os dados e escolha o modelo ideal para seu e-mail.</p>
+            </div>
+            <button type="button" id="btnResetForm" class="btn-link" title="Restaurar valores padrão">Limpar</button>
           </div>
+
+          <!-- Banner exibido quando aberto via link travado do TI -->
+          <div id="lockedBanner" class="locked-banner" hidden>
+            <div>
+              <strong>Dados configurados pelo TI</strong>
+              <span>Confira a pré-visualização ao lado e copie sua assinatura.</span>
+            </div>
+            <button type="button" id="btnUnlock" class="btn-link">Editar</button>
+          </div>
+
+          <!-- 1. Preenchimento Mágico -->
+          <details class="tool-box" id="magicBox">
+            <summary><i class="fa-solid fa-wand-magic-sparkles"></i> Preenchimento mágico (colar texto solto)</summary>
+            <div class="tool-body">
+              <textarea id="magicInput" rows="3" placeholder="Ex: Michel Berigo - Auxiliar de Monitoramento - (11) 98765-4321 - michel@federalst.com.br"></textarea>
+              <button type="button" id="btnMagicFill" class="btn-action btn-outline btn-sm">Preencher campos automaticamente</button>
+            </div>
+          </details>
 
           <form id="signatureForm" onsubmit="event.preventDefault();">
             
@@ -227,6 +249,32 @@
             </div>
 
           </form>
+
+          <!-- 3. Diagnóstico / Score em Tempo Real -->
+          <div class="score-card" id="scoreCard" aria-live="polite">
+            <div class="score-head">
+              <span>Qualidade da assinatura</span>
+              <strong id="scoreValue">100%</strong>
+            </div>
+            <div class="score-bar"><span id="scoreFill" style="width: 100%;"></span></div>
+            <ul class="score-list" id="scoreList"></ul>
+          </div>
+
+          <!-- 6. Modo TI: Gerar convite para colaborador -->
+          <details class="tool-box" id="tiInviteBox">
+            <summary><i class="fa-solid fa-user-shield"></i> Modo TI: gerar convite para colaborador</summary>
+            <div class="tool-body">
+              <p class="section-help" style="margin-bottom: 0;">Gera um link com os dados preenchidos acima e uma mensagem pronta para enviar no WhatsApp ou Teams.</p>
+              <label class="check-inline">
+                <input type="checkbox" id="chkLockFields" checked>
+                <span>Travar edição para o colaborador</span>
+              </label>
+              <div class="ti-actions">
+                <button type="button" id="btnCopyInvite" class="btn-action btn-primary btn-sm">Copiar convite + link</button>
+                <button type="button" id="btnCopyLink" class="btn-action btn-outline btn-sm">Copiar só o link</button>
+              </div>
+            </div>
+          </details>
         </section>
 
         <!-- Right Panel: Live Preview & Action Bar -->
@@ -237,15 +285,17 @@
               <p>Veja exatamente como sua assinatura aparecerá para seus clientes.</p>
             </div>
             
-            <!-- Destinos suportados -->
-            <div class="client-tabs" aria-label="Destinos suportados">
-              <span class="client-btn active"><i class="fa-solid fa-globe" aria-hidden="true"></i> Locaweb</span>
-              <span class="client-btn active"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Outlook Classic</span>
+            <!-- 2. Simulador Multi-Tela -->
+            <div class="sim-tabs" role="tablist" aria-label="Modo de visualização">
+              <button type="button" class="sim-tab active" data-mode="desktop" role="tab" aria-selected="true">PC</button>
+              <button type="button" class="sim-tab" data-mode="mobile" role="tab" aria-selected="false">Celular</button>
+              <button type="button" class="sim-tab" data-mode="dark" role="tab" aria-selected="false">Modo Escuro</button>
+              <button type="button" class="sim-tab" data-mode="blocked" role="tab" aria-selected="false">Img Bloqueada</button>
             </div>
           </div>
 
           <!-- Preview Mockup Card -->
-          <div class="mockup-card" id="mockupContainer">
+          <div class="mockup-card" id="mockupContainer" data-mode="desktop">
             <div class="mockup-header">
               <div class="window-dots">
                 <span></span><span></span><span></span>
