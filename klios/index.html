@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Gerador de assinatura de e-mail em imagem (PNG) da KLIOS Tecnologia.">
+  <title>Gerador de Assinatura — KLIOS Tecnologia</title>
+  <script>
+    if (/^https?:$/.test(location.protocol) && /\/klios$/i.test(location.pathname)) {
+      location.replace(location.pathname + "/" + location.search + location.hash);
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-inner">
+      <a class="back-link" href="../index.html">&larr; Menu</a>
+      <span class="brand-badge">KLIOS Tecnologia</span>
+      <h1 class="app-title">Gerador de Assinaturas</h1>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Formulário -->
+    <section class="panel form-panel" aria-labelledby="titulo-dados">
+      <h2 id="titulo-dados">Informações pessoais</h2>
+
+      <form id="signatureForm" autocomplete="off" onsubmit="return false;">
+        <div class="input-group">
+          <label for="inputName">Nome completo</label>
+          <input type="text" id="inputName" value="Laura Coqueiro de Oliveira" placeholder="Seu nome completo" maxlength="60">
+        </div>
+
+        <div class="input-group">
+          <label for="inputRole">Cargo</label>
+          <input type="text" id="inputRole" value="Suporte de TI" placeholder="Seu cargo" maxlength="40">
+        </div>
+
+        <h2>Contatos</h2>
+
+        <div class="input-group">
+          <label for="inputPhone">Telefone / WhatsApp</label>
+          <input type="tel" id="inputPhone" value="(62) 3414-1176" placeholder="(00) 0000-0000" maxlength="15" inputmode="tel">
+        </div>
+
+        <div class="input-group">
+          <label for="inputEmail">E-mail corporativo</label>
+          <input type="email" id="inputEmail" value="laura.oliveira@klios.com.br" placeholder="nome@klios.com.br" maxlength="50">
+        </div>
+
+        <p class="hint">Campos de contato deixados em branco não aparecem na imagem. O endereço do site é fixo.</p>
+      </form>
+    </section>
+
+    <!-- Pré-visualização -->
+    <section class="panel preview-panel" aria-labelledby="titulo-preview">
+      <h2 id="titulo-preview" class="visually-hidden">Pré-visualização</h2>
+
+      <div class="mockup-header">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="mockup-title">NOVA MENSAGEM</span>
+      </div>
+
+      <div class="mockup-body">
+        <p>Olá,<br>Segue abaixo a assinatura configurada.</p>
+        <div class="canvas-wrap" id="canvasWrap">
+          <canvas id="signatureCanvas" width="400" height="200" role="img" aria-label="Pré-visualização da assinatura"></canvas>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" id="btnCopy" class="btn btn-primary">Copiar assinatura (imagem)</button>
+        <button type="button" id="btnDownload" class="btn btn-outline">Baixar PNG</button>
+      </div>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+      <p class="hint">
+        No Outlook Classic: <strong>Arquivo → Opções → E-mail → Assinaturas → Novo</strong>, clique na caixa da
+        assinatura e cole com <strong>Ctrl + V</strong>. Se a cópia não funcionar no seu navegador,
+        use <strong>Baixar PNG</strong> e insira a imagem pelo botão de imagem do editor.
+      </p>
+    </section>
+
+    <!-- Modo ajuste de posições (somente com ?debug=1) -->
+    <section class="panel debug-panel" id="debugPanel" hidden aria-labelledby="titulo-debug">
+      <h2 id="titulo-debug">Modo ajuste (temporário)</h2>
+      <p class="hint">
+        Clique na imagem para posicionar o campo selecionado, ou use as setas do teclado
+        (<kbd>Shift</kbd> move de 5 em 5). O ponto marcado é o canto inferior esquerdo da linha de base do texto.
+      </p>
+
+      <div class="debug-row">
+        <label for="debugField">Campo</label>
+        <select id="debugField">
+          <option value="name">Nome</option>
+          <option value="role">Cargo</option>
+          <option value="phone">Telefone</option>
+          <option value="email">E-mail</option>
+          <option value="site">Site (fixo)</option>
+        </select>
+      </div>
+
+      <div class="debug-row">
+        <label for="debugX">X</label>
+        <input type="number" id="debugX" step="0.5">
+        <label for="debugY">Y</label>
+        <input type="number" id="debugY" step="0.5">
+      </div>
+
+      <div class="debug-row">
+        <label class="check"><input type="checkbox" id="debugGrid" checked> Mostrar grade</label>
+        <span id="debugReadout" class="readout">x: –, y: –</span>
+      </div>
+
+      <pre id="debugOutput" class="debug-output"></pre>
+      <button type="button" id="btnCopyConfig" class="btn btn-outline">Copiar posições</button>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">KLIOS Tecnologia &middot; Gerador de assinaturas</footer>
+
+  <script src="template.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

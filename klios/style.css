@@ -1,0 +1,391 @@
+/* ==========================================================================
+   KLIOS — GERADOR DE ASSINATURAS (tema preto e dourado)
+   ========================================================================== */
+
+:root {
+  --bg: #0f1115;
+  --panel: #1a1d24;
+  --field: #121419;
+  --border: #2a2e39;
+  --gold: #f29624;
+  --gold-hover: #d9821b;
+  --text: #ffffff;
+  --muted: #a0a4b8;
+  --ok: #27c93f;
+  --err: #ff5f56;
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.5;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Cabeçalho ---------- */
+.app-header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.back-link {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  transition: 0.2s;
+}
+
+.back-link:hover,
+.back-link:focus-visible {
+  color: var(--gold);
+  border-color: var(--gold);
+  outline: none;
+}
+
+.brand-badge {
+  background: var(--gold);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 4px;
+}
+
+.app-title {
+  margin: 0 0 0 auto;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* ---------- Layout ---------- */
+.container {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  flex: 1;
+  min-width: 300px;
+}
+
+.panel h2 {
+  margin: 0 0 15px;
+  padding-bottom: 6px;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--gold);
+  border-bottom: 1px solid var(--border);
+}
+
+.panel h2.visually-hidden {
+  border: 0;
+}
+
+.preview-panel {
+  flex: 1.3;
+}
+
+.debug-panel {
+  flex-basis: 100%;
+  border-color: var(--gold);
+}
+
+/* ---------- Formulário ---------- */
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group label,
+.debug-row label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+input[type="text"],
+input[type="tel"],
+input[type="email"],
+input[type="number"],
+select {
+  width: 100%;
+  padding: 10px;
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: 0.3s;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--gold);
+}
+
+input.input-invalid {
+  border-color: var(--err);
+}
+
+.hint {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.hint strong {
+  color: var(--text);
+}
+
+/* ---------- Simulação de e-mail ---------- */
+.mockup-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background: #f1f3f4;
+  border-radius: 6px 6px 0 0;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  margin-right: 5px;
+  border-radius: 50%;
+}
+
+.dot.red { background: #ff5f56; }
+.dot.yellow { background: #ffbd2e; }
+.dot.green { background: #27c93f; }
+
+.mockup-title {
+  margin-left: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+}
+
+.mockup-body {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #ffffff;
+  color: #333;
+  border-radius: 0 0 6px 6px;
+  overflow-x: auto;
+}
+
+.mockup-body p {
+  margin: 0 0 20px;
+  font-size: 14px;
+}
+
+.canvas-wrap {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
+}
+
+#signatureCanvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#debugOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+/* ---------- Botões ---------- */
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  flex: 1;
+  min-width: 180px;
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--gold-hover);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.btn-outline:hover {
+  background: rgba(242, 150, 36, 0.12);
+}
+
+.btn:focus-visible {
+  outline: 3px solid rgba(242, 150, 36, 0.5);
+  outline-offset: 2px;
+}
+
+/* ---------- Aviso ---------- */
+.toast {
+  display: none;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.toast.show {
+  display: block;
+}
+
+.toast-success {
+  background: rgba(39, 201, 63, 0.12);
+  color: var(--ok);
+  border: 1px solid rgba(39, 201, 63, 0.4);
+}
+
+.toast-info {
+  background: rgba(242, 150, 36, 0.12);
+  color: var(--gold);
+  border: 1px solid rgba(242, 150, 36, 0.4);
+}
+
+.toast-error {
+  background: rgba(255, 95, 86, 0.12);
+  color: var(--err);
+  border: 1px solid rgba(255, 95, 86, 0.4);
+}
+
+/* ---------- Modo ajuste ---------- */
+.debug-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.debug-row > div,
+.debug-row select,
+.debug-row input[type="number"] {
+  max-width: 160px;
+}
+
+.debug-row label.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.debug-row label.check input {
+  width: auto;
+}
+
+.readout {
+  margin-left: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--gold);
+}
+
+.debug-output {
+  margin: 0 0 12px;
+  padding: 12px;
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  overflow-x: auto;
+}
+
+kbd {
+  padding: 1px 6px;
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+/* ---------- Rodapé ---------- */
+.app-footer {
+  padding: 20px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .app-title {
+    margin-left: 0;
+    width: 100%;
+  }
+}

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Gerador de Assinatura de E-mail Profissional para a Federal Safety com suporte a código HTML nativo para Locaweb, Outlook e Gmail.">
+  <title>Gerador de Assinatura de E-mail — FEDERAL SAFETY</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome for UI Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header / Navbar -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-badge">FEDERAL SAFETY</div>
+        <h1 class="brand-title"><i class="fa-solid fa-signature"></i> Gerador de Assinaturas</h1>
+      </div>
+      <div class="header-actions">
+        <span class="status-indicator"><i class="fa-solid fa-circle-check"></i> Pronto para Locaweb e Outlook</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Container -->
+  <main class="main-wrapper">
+    <div class="container">
+      <div class="app-grid">
+        
+        <!-- Left Panel: Form & Customization -->
+        <section class="editor-panel">
+          <div class="panel-header">
+            <h2><i class="fa-solid fa-sliders"></i> Personalização</h2>
+            <p>Preencha os dados e escolha o modelo ideal para seu e-mail.</p>
+          </div>
+
+          <form id="signatureForm" onsubmit="event.preventDefault();">
+            
+            <!-- Tab Navigation for Form Sections -->
+            <div class="form-tabs" role="tablist">
+              <button type="button" class="tab-btn active" data-tab="tab-dados" role="tab" aria-selected="true" aria-controls="tab-dados">
+                <i class="fa-solid fa-user-gear" aria-hidden="true"></i> Dados
+              </button>
+              <button type="button" class="tab-btn" data-tab="tab-modelo" role="tab" aria-selected="false" aria-controls="tab-modelo">
+                <i class="fa-solid fa-palette" aria-hidden="true"></i> Modelos
+              </button>
+              <button type="button" class="tab-btn" data-tab="tab-midia" role="tab" aria-selected="false" aria-controls="tab-midia">
+                <i class="fa-solid fa-image" aria-hidden="true"></i> Logo &amp; Foto
+              </button>
+            </div>
+
+            <!-- TAB 1: Dados Pessoais e Empresa -->
+            <div class="tab-content active" id="tab-dados" role="tabpanel">
+              <div class="form-section">
+                <h3><i class="fa-solid fa-id-card"></i> Informações Pessoais</h3>
+                
+                <div class="input-group">
+                  <label for="inputNome">Nome Completo <span class="req">*</span></label>
+                  <div class="input-with-icon">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="inputNome" value="Michel Berigo" placeholder="Ex: Michel Berigo" autocomplete="off" required>
+                  </div>
+                </div>
+
+                <div class="input-row">
+                  <div class="input-group">
+                    <label for="inputCargo">Cargo <span class="req">*</span></label>
+                    <div class="input-with-icon">
+                      <i class="fa-solid fa-briefcase"></i>
+                      <input type="text" id="inputCargo" value="Auxiliar de Monitoramento" placeholder="Ex: Auxiliar de Monitoramento" autocomplete="off" required>
+                    </div>
+                  </div>
+
+                  <div class="input-group">
+                    <label for="inputLogoColor">Escolha da Logo</label>
+                    <div class="input-with-icon">
+                      <i class="fa-solid fa-image"></i>
+                      <select id="inputLogoColor">
+                        <option value="red">Logo Vermelha</option>
+                        <option value="blue" selected>Logo Azul</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3><i class="fa-solid fa-address-book"></i> Contatos e Links</h3>
+
+                <div class="input-row">
+                  <div class="input-group">
+                    <div class="label-with-toggle">
+                      <label for="inputTelefone">Telefone / WhatsApp</label>
+                      <label class="toggle-label" for="chkShowTelefone">
+                        <input type="checkbox" id="chkShowTelefone"> Exibir
+                      </label>
+                    </div>
+                    <div class="input-with-icon">
+                      <i class="fa-solid fa-phone" aria-hidden="true"></i>
+                      <input type="tel" id="inputTelefone" value="(11) 98765-4321" placeholder="Ex: (11) 98765-4321" autocomplete="off" inputmode="tel" maxlength="15">
+                    </div>
+                  </div>
+
+                  <div class="input-group">
+                    <div class="label-with-toggle">
+                      <label for="inputEmail">E-mail Corporativo</label>
+                      <label class="toggle-label" for="chkShowEmail">
+                        <input type="checkbox" id="chkShowEmail"> Exibir
+                      </label>
+                    </div>
+                    <div class="input-with-icon">
+                      <i class="fa-solid fa-envelope"></i>
+                      <input type="email" id="inputEmail" value="michel.berigo@federalst.com.br" placeholder="seu.nome@federalst.com.br" autocomplete="off">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="input-group">
+                  <label for="inputEmpresa">Nome da Empresa</label>
+                  <div class="input-with-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <input type="text" id="inputEmpresa" value="FEDERAL SAFETY" placeholder="FEDERAL SAFETY" autocomplete="off">
+                  </div>
+                </div>
+
+                <div class="input-group">
+                  <label for="inputSite">Website</label>
+                  <div class="input-with-icon">
+                    <i class="fa-solid fa-globe"></i>
+                    <input type="text" id="inputSite" value="www.federalst.com.br" placeholder="www.federalst.com.br" autocomplete="off">
+                  </div>
+                </div>
+
+                <div class="input-group">
+                  <label for="inputSlogan">Slogan Corporativo</label>
+                  <div class="input-with-icon">
+                    <i class="fa-solid fa-quote-left"></i>
+                    <input type="text" id="inputSlogan" value="Promova gentilezas. Retribua gentilezas." placeholder="Slogan ou frase" autocomplete="off">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: Modelos e Cores -->
+            <div class="tab-content" id="tab-modelo" role="tabpanel">
+              <div class="form-section">
+                <h3><i class="fa-solid fa-layer-group"></i> Estilos de Assinatura</h3>
+                <div class="templates-grid">
+                  <label class="template-card active">
+                    <input type="radio" name="templateSelect" value="classic" checked>
+                    <div class="template-preview">
+                      <span class="tpl-title">Clássico Oficial</span>
+                      <span class="tpl-desc">Layout tradicional em blocos com destaque visual para o slogan</span>
+                    </div>
+                  </label>
+
+                  <label class="template-card">
+                    <input type="radio" name="templateSelect" value="executive">
+                    <div class="template-preview">
+                      <span class="tpl-title">Executivo com Linha</span>
+                      <span class="tpl-desc">Barra lateral na cor principal, nome em destaque</span>
+                    </div>
+                  </label>
+
+                  <label class="template-card">
+                    <input type="radio" name="templateSelect" value="compact">
+                    <div class="template-preview">
+                      <span class="tpl-title">Compacto Moderno</span>
+                      <span class="tpl-desc">Design limpo e otimizado para trocas rápidas de e-mail</span>
+                    </div>
+                  </label>
+
+                  <label class="template-card">
+                    <input type="radio" name="templateSelect" value="card">
+                    <div class="template-preview">
+                      <span class="tpl-title">Cartão Digital</span>
+                      <span class="tpl-desc">Bloco com borda, contatos acima da logo</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3><i class="fa-solid fa-palette"></i> Cores de Destaque</h3>
+                <div class="color-presets">
+                  <button type="button" class="color-btn active" data-primary="#0000cc" data-secondary="#cc0000" title="Padrão Federal Safety (Azul/Vermelho)">
+                    <span style="background: linear-gradient(135deg, #0000cc 50%, #cc0000 50%);"></span> Padrão Federal
+                  </button>
+                  <button type="button" class="color-btn" data-primary="#12123a" data-secondary="#cc0000" title="Navy Corporativo">
+                    <span style="background: linear-gradient(135deg, #12123a 50%, #cc0000 50%);"></span> Navy & Red
+                  </button>
+                  <button type="button" class="color-btn" data-primary="#0055ff" data-secondary="#12123a" title="Blue Tech">
+                    <span style="background: linear-gradient(135deg, #0055ff 50%, #12123a 50%);"></span> Blue Tech
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 3: Logo e Foto -->
+            <div class="tab-content" id="tab-midia" role="tabpanel">
+              <div class="form-section">
+                <h3><i class="fa-solid fa-file-image"></i> Logotipo / Imagem de Rodapé</h3>
+                <p class="section-help">Por padrão, a logo oficial da Federal Safety será mantida. Se desejar, você pode enviar uma foto pessoal ou uma nova logo. <strong>Atenção:</strong> no Outlook, a imagem personalizada precisa ser colada à parte (botão "2. Copiar Logo").</p>
+
+                <div class="upload-box" id="uploadBox">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                  <span class="upload-title">Clique ou arraste uma foto/logo</span>
+                  <span class="upload-sub">PNG, JPG ou GIF (Máx. 2MB) — redimensionada para 450px de largura</span>
+                  <input type="file" id="inputCustomLogo" accept="image/png,image/jpeg,image/gif" aria-label="Enviar logo ou foto personalizada">
+                </div>
+
+                <div class="media-actions" id="mediaActions" style="display: none;">
+                  <button type="button" class="btn-secondary" id="btnResetLogo">
+                    <i class="fa-solid fa-rotate-left"></i> Restaurar Logo Oficial
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </section>
+
+        <!-- Right Panel: Live Preview & Action Bar -->
+        <section class="preview-panel">
+          <div class="panel-header flex-header">
+            <div>
+              <h2><i class="fa-solid fa-eye"></i> Pré-visualização ao Vivo</h2>
+              <p>Veja exatamente como sua assinatura aparecerá para seus clientes.</p>
+            </div>
+            
+            <!-- Destinos suportados -->
+            <div class="client-tabs" aria-label="Destinos suportados">
+              <span class="client-btn active"><i class="fa-solid fa-globe" aria-hidden="true"></i> Locaweb</span>
+              <span class="client-btn active"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Outlook Classic</span>
+            </div>
+          </div>
+
+          <!-- Preview Mockup Card -->
+          <div class="mockup-card" id="mockupContainer">
+            <div class="mockup-header">
+              <div class="window-dots">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="mockup-title" id="mockupTitleText">Locaweb Webmail — Nova Mensagem</div>
+            </div>
+            <div class="mockup-body">
+              <div class="email-meta">
+                <div><strong>Para:</strong> cliente@empresa.com.br</div>
+                <div><strong>Assunto:</strong> Gestão Ativa de Riscos — Federal Safety</div>
+              </div>
+              <div class="email-content">
+                <p>Olá,</p>
+                <p>Segue abaixo a assinatura configurada com todas as normas de comunicação da empresa.</p>
+                <br>
+                <!-- Rendered Signature Area -->
+                <div class="signature-render-area" id="signatureContainer">
+                  <!-- Generated Signature HTML inserted by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons for Locaweb & Email Clients -->
+          <div class="actions-card">
+            <div class="locaweb-highlight-banner">
+              <div class="banner-icon"><i class="fa-solid fa-star"></i></div>
+              <div class="banner-text">
+                <strong>Recomendado para Webmail Locaweb:</strong>
+                <span>Copie o código HTML nativo abaixo para garantir 100% de precisão sem perder a formatação!</span>
+              </div>
+            </div>
+
+            <div class="action-buttons-grid">
+              <button type="button" class="btn-action btn-locaweb" id="btnCopyHtmlLocaweb">
+                <i class="fa-solid fa-code"></i>
+                <span>Copiar Código HTML <strong>(Locaweb)</strong></span>
+              </button>
+
+              <button type="button" class="btn-action btn-primary" id="btnCopyVisual">
+                <i class="fa-solid fa-copy"></i>
+                <span>1. Copiar Assinatura <strong>(Outlook)</strong></span>
+              </button>
+
+              <button type="button" class="btn-action btn-primary" id="btnCopyLogo">
+                <i class="fa-solid fa-image"></i>
+                <span>2. Copiar Logo (imagem)</span>
+              </button>
+
+              <button type="button" class="btn-action btn-outline" id="btnViewCode">
+                <i class="fa-solid fa-file-code"></i>
+                <span>Ver Código Fonte</span>
+              </button>
+
+              <button type="button" class="btn-action btn-outline" id="btnDownloadHtml">
+                <i class="fa-solid fa-download"></i>
+                <span>Baixar (.html)</span>
+              </button>
+            </div>
+
+            <div class="toast-message" id="toastMessage"></div>
+          </div>
+
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>FEDERAL SAFETY &middot; Gestão Ativa de Riscos &copy; 2026</p>
+  </footer>
+
+  <!-- Modal: View HTML Code -->
+  <div class="modal-overlay" id="modalCode" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Código HTML da Assinatura">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-code"></i> Código HTML da Assinatura</h3>
+        <button class="modal-close" id="btnCloseModalCode">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Código para colar no editor HTML da Locaweb. Para facilitar a leitura, a imagem em base64 aparece abreviada aqui; o botão abaixo copia o código <strong>completo</strong>.</p>
+        <textarea id="codeTextarea" readonly></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-action btn-locaweb" id="btnCopyModalCode">
+          <i class="fa-solid fa-copy"></i> Copiar Código HTML
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Tutorial Locaweb -->
+  <div class="modal-overlay" id="modalLocawebHelp" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Como colar no Webmail da Locaweb">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-circle-question"></i> Como Colar no Webmail da Locaweb</h3>
+        <button class="modal-close" id="btnCloseModalLocaweb">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="step-guide">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-info">
+              <strong>Código Copiado!</strong>
+              <p>O código HTML completo da sua assinatura já está na memória do seu computador.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-info">
+              <strong>Acesse o Webmail da Locaweb</strong>
+              <p>Vá em <strong>Configurações</strong> &rarr; <strong>Assinaturas</strong> no painel da Locaweb.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-info">
+              <strong>Abra o modo Código/HTML</strong>
+              <p>No editor de assinatura, clique no botão <code>&lt;/&gt;</code> ou <code>Fonte HTML</code> na barra de ferramentas.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-info">
+              <strong>Cole (Ctrl + V) e Salve</strong>
+              <p>Cole o código copiado no campo e salve. Sua assinatura ficará perfeitamente formatada!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-action btn-primary" id="btnOkLocawebHelp">Entendi, tudo certo!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Tutorial Outlook -->
+  <div class="modal-overlay" id="modalOutlookHelp" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Como colar no Microsoft Outlook">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-envelope-open-text"></i> Como Colar no Microsoft Outlook</h3>
+        <button class="modal-close" id="btnCloseModalOutlook">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="step-guide">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-info">
+              <strong>Assinatura Copiada (texto + logo)!</strong>
+              <p>Abra a assinatura no Outlook e cole com <strong>Ctrl + V</strong>. Fonte, cores, negrito e logo vêm juntos.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">!</div>
+            <div class="step-info">
+              <strong>Usou logo/foto personalizada?</strong>
+              <p>A logo oficial já vai junto ao colar. Só se você enviou uma imagem própria na aba "Logo &amp; Foto", clique em <strong>"2. Copiar Logo (imagem)"</strong> e cole com <strong>Ctrl + V</strong> no Outlook.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-info">
+              <strong>No Outlook Desktop (Programa no Windows/Mac):</strong>
+              <p>Vá em <strong>Arquivo</strong> &rarr; <strong>Opções</strong> &rarr; <strong>Email</strong> &rarr; <strong>Assinaturas</strong>. Clique em <strong>Novo</strong>, clique no campo da assinatura e pressione <strong>Ctrl + V</strong> (ou Cmd + V no Mac).</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-info">
+              <strong>No Outlook Web / Office 365 (Navegador):</strong>
+              <p>Clique na <strong>Engrenagem (Configurações)</strong> &rarr; <strong>Contas</strong> &rarr; <strong>Assinaturas</strong>. Cole diretamente na caixa com <strong>Ctrl + V</strong> e clique em <strong>Salvar</strong>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-action btn-primary" id="btnOkOutlookHelp">Entendi, tudo certo!</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

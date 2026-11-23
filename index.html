@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portal corporativo de assinaturas de e-mail da Federal Safety e da KLIOS Tecnologia.">
+  <title>Gerador de Assinaturas de E-mail</title>
+  <link rel="stylesheet" href="menu.css">
+</head>
+<body>
+
+  <div class="bg-ambient" aria-hidden="true"></div>
+
+  <main class="menu-wrapper">
+    <header class="menu-header">
+      <div class="status-pill">
+        <span class="pulse" aria-hidden="true"></span>
+        <span>PORTAL CORPORATIVO &middot; ASSINATURAS</span>
+      </div>
+      <h1>Gerador de Assinaturas de E-mail</h1>
+      <p>Selecione a empresa para abrir o módulo correspondente.</p>
+    </header>
+
+    <nav class="cards" aria-label="Empresas">
+
+      <a class="card card-federal" href="federal/index.html" data-company="fed">
+        <span class="spotlight" aria-hidden="true"></span>
+        <div class="card-top">
+          <span class="card-badge">FEDERAL SAFETY</span>
+          <span class="key-hint" title="Atalho no teclado">Tecla 1</span>
+        </div>
+        <h2>Federal Safety</h2>
+        <p>Gere sua assinatura em HTML nativo pronta para colar no Webmail Locaweb ou Outlook Classic.</p>
+        <div class="mini-preview">
+          <div class="mini-bar" aria-hidden="true">&lt;/&gt;</div>
+          <div class="mini-lines">
+            <strong>4 modelos oficiais</strong>
+            <span>Texto selecionável + links clicáveis</span>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag">Locaweb</span>
+          <span class="tag">Outlook Classic</span>
+          <span class="tag">Código HTML</span>
+        </div>
+        <span class="card-action">
+          <span>Acessar módulo Federal</span>
+          <span class="arrow" aria-hidden="true">&rarr;</span>
+        </span>
+      </a>
+
+      <a class="card card-klios" href="klios/index.html" data-company="kli">
+        <span class="spotlight" aria-hidden="true"></span>
+        <div class="card-top">
+          <span class="card-badge">KLIOS TECNOLOGIA</span>
+          <span class="key-hint" title="Atalho no teclado">Tecla 2</span>
+        </div>
+        <h2>KLIOS Tecnologia</h2>
+        <p>Personalize e gere a imagem oficial da sua assinatura em PNG pronta para colar no Outlook.</p>
+        <div class="mini-preview">
+          <div class="mini-bar" aria-hidden="true">PNG</div>
+          <div class="mini-lines">
+            <strong>Arte oficial 400&times;200 px</strong>
+            <span>Cópia direta com 1 clique ou download</span>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag">Imagem PNG</span>
+          <span class="tag">Outlook Classic</span>
+          <span class="tag">1 Clique</span>
+        </div>
+        <span class="card-action">
+          <span>Acessar módulo KLIOS</span>
+          <span class="arrow" aria-hidden="true">&rarr;</span>
+        </span>
+      </a>
+
+    </nav>
+
+    <footer class="menu-footer">
+      <button type="button" class="helper-pill" id="btnCompare" aria-expanded="false" aria-controls="compareBox">
+        Dica: passe o mouse para destacar, pressione <strong>1</strong> / <strong>2</strong> ou clique aqui para comparar
+      </button>
+      <div class="compare-box" id="compareBox" hidden>
+        <div><strong>Federal Safety:</strong> gera código HTML (ideal para Locaweb e Outlook Classic com links clicáveis).</div>
+        <div><strong>KLIOS Tecnologia:</strong> gera imagem PNG oficial pronta para colar no Outlook ou baixar.</div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const body = document.body;
+      const cards = document.querySelectorAll(".card");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      cards.forEach((card) => {
+        const company = card.dataset.company;
+
+        card.addEventListener("pointerenter", () => {
+          body.classList.remove("hover-fed", "hover-kli");
+          if (company) body.classList.add("hover-" + company);
+        });
+
+        card.addEventListener("pointerleave", () => {
+          body.classList.remove("hover-fed", "hover-kli");
+          card.style.transform = "";
+        });
+
+        if (!reducedMotion) {
+          card.addEventListener("pointermove", (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty("--mx", x + "px");
+            card.style.setProperty("--my", y + "px");
+
+            const rx = ((y / rect.height) - 0.5) * -6;
+            const ry = ((x / rect.width) - 0.5) * 6;
+            card.style.transform = `perspective(900px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-4px)`;
+          });
+        }
+      });
+
+      // Atalhos de teclado: 1 = Federal Safety, 2 = KLIOS Tecnologia
+      document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey || e.altKey || e.metaKey) return;
+        const tag = (e.target && e.target.tagName) || "";
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+        if (e.key === "1") window.location.href = "federal/index.html";
+        if (e.key === "2") window.location.href = "klios/index.html";
+      });
+
+      const btnCompare = document.getElementById("btnCompare");
+      const compareBox = document.getElementById("compareBox");
+      if (btnCompare && compareBox) {
+        btnCompare.addEventListener("click", () => {
+          const open = compareBox.hidden;
+          compareBox.hidden = !open;
+          btnCompare.setAttribute("aria-expanded", String(open));
+        });
+      }
+    })();
+  </script>
+
+</body>
+</html>
