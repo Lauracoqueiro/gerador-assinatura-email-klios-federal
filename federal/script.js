@@ -210,24 +210,23 @@
   }
 
   // ==========================================================================
-  // 3. MODELOS HTML (Verdana 11pt, negrito)
-  // Todos os modelos usam layout em TABELA com estilos inline: é o formato
-  // compatível ao mesmo tempo com o webmail da Locaweb e com o Outlook Classic
-  // (motor do Word), que ignora max-width, border-radius e margens de <p>.
-  // Há UMA única fonte por modelo, usada pelos dois destinos.
+  // 3. MODELOS HTML (Verdana 11pt, negrito — texto corrido sem <table>)
+  // Usa <p> e <div> com estilos inline para não gerar caixas ou linhas
+  // pontilhadas nos editores da Locaweb e do Outlook. A logo mantém width e
+  // height explícitos para continuar no tamanho exato no Outlook Classic.
   // ==========================================================================
 
-  function textRow(content, color, paddingBottom) {
-    return `<tr><td style="${FONT} color: ${color}; padding: 0 0 ${paddingBottom}px 0; mso-line-height-rule: exactly; line-height: 1.4;">${content}</td></tr>`;
+  function textLine(content, color, marginBottom) {
+    return `<p style="${FONT} color: ${color}; margin: 0 0 ${marginBottom}px 0; line-height: 1.4;">${content}</p>`;
   }
 
-  function logoRow(logo, width, paddingBottom) {
+  function logoLine(logo, width, marginBottom) {
     if (!logo) return "";
     const w = Math.min(width, logo.naturalW || width);
     const h = logo.naturalW ? Math.round((logo.naturalH * w) / logo.naturalW) : "";
     const hAttr = h ? ` height="${h}"` : "";
     const hCss = h ? ` height: ${h}px;` : " height: auto;";
-    return `<tr><td style="padding: 0 0 ${paddingBottom}px 0;"><img src="${escapeHtml(logo.src)}" alt="Federal Safety" width="${w}"${hAttr} border="0" style="display: block; border: 0; width: ${w}px;${hCss}" /></td></tr>`;
+    return `<p style="margin: 0 0 ${marginBottom}px 0;"><img src="${escapeHtml(logo.src)}" alt="Federal Safety" width="${w}"${hAttr} border="0" style="display: block; border: 0; width: ${w}px;${hCss}" /></p>`;
   }
 
   function linkHtml(href, text, color) {
@@ -254,74 +253,63 @@
     return parts.join(separator);
   }
 
-  function wrapTable(rows, width) {
-    return `<table border="0" cellpadding="0" cellspacing="0" width="${width}" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; ${FONT}">${rows}</table>`;
-  }
-
   // MODELO 1: CLÁSSICO OFICIAL
   function buildClassicHTML(s, logo) {
     const contact = buildContactContent(s, true, " &bull; ");
     const slogan = s.slogan || "Promova gentilezas. Retribua gentilezas.";
-    const rows = [
-      textRow("&Agrave; disposi&ccedil;&atilde;o,", s.colorPrimary, 12),
-      textRow(`${escapeHtml(s.nome)} &ndash; ${escapeHtml(s.cargo)} - ${escapeHtml(s.empresa)}`, s.colorSecondary, 12),
-      logoRow(logo, LOGO_WIDTH_BY_TEMPLATE.classic, 12),
-      contact ? textRow(contact, CONTACT_COLOR, 10) : "",
-      textRow(`&quot;${escapeHtml(slogan)}&quot;`, s.colorSecondary, 10),
-      textRow(`Visite o novo site ${linkHtml(cleanSiteUrl(s.site), s.site, s.colorPrimary)} e conhe&ccedil;a nossos servi&ccedil;os!`, s.colorSecondary, 0),
+    const lines = [
+      textLine("&Agrave; disposi&ccedil;&atilde;o,", s.colorPrimary, 12),
+      textLine(`${escapeHtml(s.nome)} &ndash; ${escapeHtml(s.cargo)} - ${escapeHtml(s.empresa)}`, s.colorSecondary, 12),
+      logoLine(logo, LOGO_WIDTH_BY_TEMPLATE.classic, 12),
+      contact ? textLine(contact, CONTACT_COLOR, 10) : "",
+      textLine(`&quot;${escapeHtml(slogan)}&quot;`, s.colorSecondary, 10),
+      textLine(`Visite o novo site ${linkHtml(cleanSiteUrl(s.site), s.site, s.colorPrimary)} e conhe&ccedil;a nossos servi&ccedil;os!`, s.colorSecondary, 0),
     ].join("");
-    return wrapTable(rows, LOGO_WIDTH_BY_TEMPLATE.classic);
+    return `<div style="${FONT} line-height: 1.5;">${lines}</div>`;
   }
 
   // MODELO 2: EXECUTIVO (barra lateral colorida)
   function buildExecutiveHTML(s, logo) {
     const contact = buildContactContent(s, true, " | ");
     const inner = [
-      textRow(escapeHtml(s.nome), s.colorPrimary, 4),
-      textRow(`${escapeHtml(s.cargo)} &ndash; ${escapeHtml(s.empresa)}`, s.colorSecondary, 10),
-      logoRow(logo, LOGO_WIDTH_BY_TEMPLATE.executive, 10),
-      contact ? textRow(contact, CONTACT_COLOR, 8) : "",
-      s.slogan ? textRow(`&quot;${escapeHtml(s.slogan)}&quot;`, s.colorSecondary, 8) : "",
-      textRow(`Acesse ${linkHtml(cleanSiteUrl(s.site), s.site, s.colorPrimary)}`, s.colorSecondary, 0),
+      textLine(escapeHtml(s.nome), s.colorPrimary, 4),
+      textLine(`${escapeHtml(s.cargo)} &ndash; ${escapeHtml(s.empresa)}`, s.colorSecondary, 10),
+      logoLine(logo, LOGO_WIDTH_BY_TEMPLATE.executive, 10),
+      contact ? textLine(contact, CONTACT_COLOR, 8) : "",
+      s.slogan ? textLine(`&quot;${escapeHtml(s.slogan)}&quot;`, s.colorSecondary, 8) : "",
+      textLine(`Acesse ${linkHtml(cleanSiteUrl(s.site), s.site, s.colorPrimary)}`, s.colorSecondary, 0),
     ].join("");
-    const totalW = LOGO_WIDTH_BY_TEMPLATE.executive + 18;
-    const rows = [
-      textRow("&Agrave; disposi&ccedil;&atilde;o,", s.colorPrimary, 10),
-      `<tr><td style="padding: 0;"><table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;"><tr>` +
-        `<td width="4" bgcolor="${s.colorPrimary}" style="width: 4px; background-color: ${s.colorPrimary}; font-size: 1px; line-height: 1px;">&nbsp;</td>` +
-        `<td width="14" style="width: 14px; font-size: 1px; line-height: 1px;">&nbsp;</td>` +
-        `<td style="padding: 0;"><table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse; ${FONT}">${inner}</table></td>` +
-      `</tr></table></td></tr>`,
-    ].join("");
-    return wrapTable(rows, totalW);
+    return `<div style="${FONT} line-height: 1.5;">` +
+      textLine("&Agrave; disposi&ccedil;&atilde;o,", s.colorPrimary, 10) +
+      `<div style="border-left: 4px solid ${s.colorPrimary}; padding-left: 14px;">${inner}</div>` +
+      `</div>`;
   }
 
   // MODELO 3: COMPACTO
   function buildCompactHTML(s, logo) {
     const contact = buildContactContent(s, false, " &bull; ");
     const sloganPart = s.slogan ? `${escapeHtml(s.slogan)} | ` : "";
-    const rows = [
-      textRow(`<span style="color: ${s.colorPrimary}; font-weight: bold;">${escapeHtml(s.nome)}</span> &ndash; ${escapeHtml(s.cargo)} - ${escapeHtml(s.empresa)}`, s.colorSecondary, 8),
-      logoRow(logo, LOGO_WIDTH_BY_TEMPLATE.compact, 8),
-      contact ? textRow(contact, CONTACT_COLOR, 6) : "",
-      textRow(`${sloganPart}${linkHtml(cleanSiteUrl(s.site), s.site, s.colorPrimary)}`, s.colorSecondary, 0),
+    const lines = [
+      textLine(`<span style="color: ${s.colorPrimary}; font-weight: bold;">${escapeHtml(s.nome)}</span> &ndash; ${escapeHtml(s.cargo)} - ${escapeHtml(s.empresa)}`, s.colorSecondary, 8),
+      logoLine(logo, LOGO_WIDTH_BY_TEMPLATE.compact, 8),
+      contact ? textLine(contact, CONTACT_COLOR, 6) : "",
+      textLine(`${sloganPart}${linkHtml(cleanSiteUrl(s.site), s.site, s.colorPrimary)}`, s.colorSecondary, 0),
     ].join("");
-    return wrapTable(rows, LOGO_WIDTH_BY_TEMPLATE.compact);
+    return `<div style="${FONT} line-height: 1.4;">${lines}</div>`;
   }
 
   // MODELO 4: CARTÃO DIGITAL (com borda)
   function buildCardHTML(s, logo) {
     const contact = buildContactContent(s, true, " | ");
     const inner = [
-      textRow(escapeHtml(s.nome), s.colorPrimary, 4),
-      textRow(`${escapeHtml(s.cargo)} &bull; ${escapeHtml(s.empresa)}`, s.colorSecondary, 8),
-      contact ? textRow(contact, CONTACT_COLOR, 10) : "",
-      logoRow(logo, LOGO_WIDTH_BY_TEMPLATE.card, 10),
-      s.slogan ? textRow(`&quot;${escapeHtml(s.slogan)}&quot;`, s.colorSecondary, 4) : "",
-      textRow(`Website: ${linkHtml(cleanSiteUrl(s.site), s.site, s.colorPrimary)}`, s.colorSecondary, 0),
+      textLine(escapeHtml(s.nome), s.colorPrimary, 4),
+      textLine(`${escapeHtml(s.cargo)} &bull; ${escapeHtml(s.empresa)}`, s.colorSecondary, 8),
+      contact ? textLine(contact, CONTACT_COLOR, 10) : "",
+      logoLine(logo, LOGO_WIDTH_BY_TEMPLATE.card, 10),
+      s.slogan ? textLine(`&quot;${escapeHtml(s.slogan)}&quot;`, s.colorSecondary, 4) : "",
+      textLine(`Website: ${linkHtml(cleanSiteUrl(s.site), s.site, s.colorPrimary)}`, s.colorSecondary, 0),
     ].join("");
-    const totalW = LOGO_WIDTH_BY_TEMPLATE.card + 30;
-    return `<table border="0" cellpadding="0" cellspacing="0" width="${totalW}" style="border-collapse: collapse; border: 1px solid #dfe3ee; mso-table-lspace: 0pt; mso-table-rspace: 0pt;"><tr><td style="padding: 14px;"><table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse; ${FONT}">${inner}</table></td></tr></table>`;
+    return `<div style="${FONT} max-width: ${LOGO_WIDTH_BY_TEMPLATE.card + 30}px; border: 1px solid #dfe3ee; padding: 14px; border-radius: 6px; line-height: 1.5;">${inner}</div>`;
   }
 
   // Gera o HTML do modelo atual para o destino ("web" ou "outlook")
@@ -821,7 +809,7 @@
 
   function htmlToPlainText(html) {
     const div = document.createElement("div");
-    div.innerHTML = html.replace(/<\/tr>/g, "</tr>\n");
+    div.innerHTML = html.replace(/<\/(tr|p)>/gi, "</$1>\n");
     return (div.textContent || "").replace(/\n\s*\n/g, "\n").trim();
   }
 
